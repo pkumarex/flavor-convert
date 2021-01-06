@@ -79,8 +79,10 @@ func findTemplatesToApply(oldFlavorPart []byte, defaultFlavorTemplates []string)
 	}
 
 	var conditionEval bool
-	var flavorTemplate FlavorTemplate
+
 	for _, template := range defaultFlavorTemplates {
+
+		flavorTemplate := FlavorTemplate{}
 
 		err := json.Unmarshal([]byte(template), &flavorTemplate)
 		if err != nil {
@@ -153,8 +155,10 @@ func main() {
 
 	//get the flavor template based on old flavor part file
 	templates, err := getFlavorTemplates(body)
-
-	fmt.Println("filtered templates:", templates)
+	if err != nil {
+		fmt.Println("Error in getting the flavor templates")
+		os.Exit(1)
+	}
 
 	var oldFlavorPart OldFlavorPart
 
@@ -165,13 +169,13 @@ func main() {
 		os.Exit(1)
 	}
 
-	for k, flavor := range oldFlavorPart.SignedFlavor {
+	for flavorIndex, flavor := range oldFlavorPart.SignedFlavor {
 
 		//Updating meta section
 		if flavor.Flavor.Hardware != nil && flavor.Flavor.Hardware.Feature.CBNT != nil && flavor.Flavor.Hardware.Feature.CBNT.Enabled {
-			oldFlavorPart.SignedFlavor[k].Flavor.Meta.Description.CbntEnabled = true
+			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.CbntEnabled = true
 		} else if flavor.Flavor.Hardware != nil && flavor.Flavor.Hardware.Feature.SUEFI != nil && flavor.Flavor.Hardware.Feature.SUEFI.Enabled {
-			oldFlavorPart.SignedFlavor[k].Flavor.Meta.Description.SuefiEnabled = true
+			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.SuefiEnabled = true
 		}
 
 		// Copying the pcrs sections from old flavor part to new flavor part
@@ -181,7 +185,7 @@ func main() {
 
 		for _, template := range templates {
 
-			oldFlavorPart.SignedFlavor[k].Flavor.Meta.Description.FlavorTemplateIds = append(oldFlavorPart.SignedFlavor[k].Flavor.Meta.Description.FlavorTemplateIds, template.ID)
+			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.FlavorTemplateIds = append(oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.FlavorTemplateIds, template.ID)
 
 			flavorname := flavor.Flavor.Meta.Description.FlavorPart
 
@@ -272,8 +276,8 @@ func main() {
 			}
 			flavor.Flavor.PcrLogs = newFlavorPcrs
 		}
-		oldFlavorPart.SignedFlavor[k].Flavor.Pcrs = nil
-		oldFlavorPart.SignedFlavor[k].Flavor.PcrLogs = flavor.Flavor.PcrLogs
+		oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Pcrs = nil
+		oldFlavorPart.SignedFlavor[flavorIndex].Flavor.PcrLogs = flavor.Flavor.PcrLogs
 	}
 
 	//getting the final data
