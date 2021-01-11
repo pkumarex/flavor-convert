@@ -1,0 +1,96 @@
+{
+	"label": "linux-tpm20-tboot",
+	"condition": [
+		"//host_info/vendor//*[text()='Linux']",
+		"//host_info/tpm_version//*[text()='2.0']",
+		"//host_info/tboot_installed//*[text()='true']"
+	],
+	"flavor_parts": {
+		"PLATFORM": {
+			"meta": {
+				"bios_name": "{{//host_info/bios_name}}",
+				"bios_version": "{{//host_info/bios_version}}",
+				"tpm_version": "2.0",
+				"tboot_installed": true
+			},
+			"pcr_rules": [
+				{
+					"pcr": {
+						"index": 17,
+						"bank": "SHA256"
+					},
+					"pcr_matches": true,
+					"eventlog_equals": {
+						"excluding_tags": [
+							"LCP_CONTROL_HASH",
+							"initrd",
+							"vmlinuz"
+						]
+					}
+				},
+				{
+					"pcr": {
+						"index": 18,
+						"bank": "SHA256"
+					},
+					"pcr_matches": true,
+					"eventlog_equals": {
+						"excluding_tags": [
+							"LCP_CONTROL_HASH",
+							"initrd",
+							"vmlinuz"
+						]
+					}
+				}
+			]
+		},
+		"OS": {
+			"meta": {
+				"os_name": "{{//host_info/meta/description/os_name}}",
+				"os_version": "{{//host_info/ meta/description/os_version}}",
+				"tpm_version": "2.0",
+				"tboot_installed": true
+			},
+			"pcr_rules": [
+				{
+					"pcr": {
+						"index": 17,
+						"bank": "SHA256"
+					},
+					"eventlog_includes": [
+						"vmlinuz"
+					]
+				}
+			]
+		},
+		"HOST_UNIQUE": {
+			"meta": {
+				"os_name": "{{//host_info/meta/description/os_name}}",
+				"os_version": "{{//host_info/ meta/description/os_version}}",
+				"tpm_version": "2.0",
+				"tboot_installed": true
+			},
+			"pcr_rules": [
+				{
+					"pcr": {
+						"index": 17,
+						"bank": "SHA256"
+					},
+					"eventlog_includes": [
+						"LCP_CONTROL_HASH",
+						"initrd"
+					]
+				},
+				{
+					"pcr": {
+						"index": 18,
+						"bank": "SHA256"
+					},
+					"eventlog_includes": [
+						"LCP_CONTROL_HASH"
+					]
+				}
+			]
+		}
+	}
+}

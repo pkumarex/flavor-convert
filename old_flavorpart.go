@@ -15,8 +15,8 @@ type OldFlavorPart struct {
 }
 
 type SignedFlavors struct {
-	Flavor    Flavor `json:"flavor"`
-	Signature string `json:"signature"`
+	Flavor    Flavor `json:"flavor,omitempty"`
+	Signature string `json:"signature,omitempty"`
 }
 
 type Flavor struct {

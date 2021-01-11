@@ -1,0 +1,25 @@
+{
+    "label": "linux-tpm20-cbnt",
+    "condition": [
+		"//host_info/vendor//*[text()='Linux']",
+        "//host_info/tpm_version//*[text()='2.0']",
+        "//host_info/hardware_features/cbnt/enabled//*[text()='true']"
+    ],
+    "flavor_parts": {
+        "PLATFORM": {
+            "meta": {
+                "tpm_version": "2.0",
+                "cbnt_enabled": true
+            },
+            "pcr_rules": [
+                {
+                    "pcr": {
+                        "index": 7,
+                        "bank": "SHA256"
+                    },
+                    "pcr_matches": true
+                }
+            ]
+        }
+    }
+}

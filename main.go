@@ -24,14 +24,14 @@ var flavorTemplateConditions = map[string]string{"//host_info/tboot_installed//*
 	"//host_info/vendor//*[text()='Linux']":                         "//meta/vendor//*[text()='INTEL']",
 	"//host_info/tpm_version//*[text()='2.0']":                      "//meta/description/tpm_version//*[text()='2.0']"}
 
-var flavorTemplatePath = "/opt/hvs/flavortemplates"
+var flavorTemplatePath = "/opt/hvs-flavortemplates"
 
 //getOldFlavorPartFilePath method is used to get the data from argement
 func getOldFlavorPartFilePath() (string, error) {
 
 	// return error if there are no correct number of arguments
 	if len(os.Args) < 2 {
-		return "", fmt.Errorf("Old flavor part file path is required")
+		return "", fmt.Errorf("Old flavor part json file path is required")
 	}
 
 	fileLocation := os.Args[1]
@@ -53,14 +53,13 @@ func getFlavorTemplates(body []byte) ([]FlavorTemplate, error) {
 		path := flavorTemplatePath + "/" + template.Name()
 		data, err := ioutil.ReadFile(path)
 		if err != nil {
-			return nil, fmt.Errorf("Error in reading the file - ", template.Name())
+			return nil, fmt.Errorf("Error in reading the template file - ", template.Name())
 		}
 		defaultFlavorTemplates = append(defaultFlavorTemplates, string(data))
 	}
 
 	// finding the correct template to apply
 	filteredTemplate, err := findTemplatesToApply(body, defaultFlavorTemplates)
-
 	if err != nil {
 		return nil, fmt.Errorf("Error in getting the template file based on old flavorpart")
 	}
@@ -136,13 +135,13 @@ func main() {
 	// Getting the file data that was entered by the user
 	oldFlavorPartFilePath, err := getOldFlavorPartFilePath()
 	if err != nil {
-		fmt.Println("Error in getting the old flavor part file path - ", oldFlavorPartFilePath)
+		fmt.Println("Error in getting the old flavor part file path - ", err)
 		os.Exit(1)
 	}
 
 	// Validating the old flavor part file path entered
 	if valid, err := checkIfValidFile(oldFlavorPartFilePath); err != nil && !valid {
-		fmt.Println("Error in validating the input file path")
+		fmt.Println("Error in validating the input file path - ", err)
 		os.Exit(1)
 	}
 
@@ -156,7 +155,7 @@ func main() {
 	//get the flavor template based on old flavor part file
 	templates, err := getFlavorTemplates(body)
 	if err != nil {
-		fmt.Println("Error in getting the flavor templates")
+		fmt.Println(err)
 		os.Exit(1)
 	}
 
@@ -177,6 +176,10 @@ func main() {
 		} else if flavor.Flavor.Hardware != nil && flavor.Flavor.Hardware.Feature.SUEFI != nil && flavor.Flavor.Hardware.Feature.SUEFI.Enabled {
 			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.SuefiEnabled = true
 		}
+
+		//removing the signature from the flavors
+		//since the final flavor part file is not a signed flavor(only the flavor collection)
+		oldFlavorPart.SignedFlavor[flavorIndex].Signature = ""
 
 		// Copying the pcrs sections from old flavor part to new flavor part
 		if flavor.Flavor.Pcrs == nil {
@@ -282,13 +285,17 @@ func main() {
 
 	//getting the final data
 	finalFlavorPart, err := json.Marshal(oldFlavorPart.SignedFlavor)
+	if err != nil {
+		fmt.Println("Error in marshaling the final flavor part file")
+		os.Exit(1)
+	}
 
+	//Printing the final flavor part file in console
 	fmt.Println("New flavor part json:\n", string(finalFlavorPart))
 
 	//writing the new flavor part into the local file
 	data := []byte(finalFlavorPart)
 	err = ioutil.WriteFile("/opt/newflavorpart.json", data, 0644)
-
 	if err != nil {
 		fmt.Println("Error in writing the new flavor part file")
 		os.Exit(1)
