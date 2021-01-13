@@ -7,6 +7,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -16,6 +17,13 @@ import (
 
 	"github.com/antchfx/jsonquery"
 )
+
+const helpStr = `Usage:
+flavor-convert [argument]
+	
+Available Command:
+	help|-h|--help         Show this help message
+`
 
 //To map the conditions in the flavor template with old flavor part
 var flavorTemplateConditions = map[string]string{"//host_info/tboot_installed//*[text()='true']": "//meta/description/tboot_installed//*[text()='true']",
@@ -31,6 +39,7 @@ func getOldFlavorPartFilePath() (string, error) {
 
 	// return error if there are no correct number of arguments
 	if len(os.Args) < 2 {
+		fmt.Println(helpStr)
 		return "", fmt.Errorf("Old flavor part json file path is required")
 	}
 
@@ -131,6 +140,12 @@ func checkIfValidFile(filename string) (bool, error) {
 
 //main method implements migration of old format of flavor part to new format
 func main() {
+
+	// Showing useful information when the user enters the --help option
+	flag.Usage = func() {
+		fmt.Println(helpStr)
+	}
+	flag.Parse()
 
 	// Getting the file data that was entered by the user
 	oldFlavorPartFilePath, err := getOldFlavorPartFilePath()
