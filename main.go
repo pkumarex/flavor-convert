@@ -18,11 +18,15 @@ import (
 	"github.com/antchfx/jsonquery"
 )
 
+var BuildVersion string
+
 const helpStr = `Usage:
-flavor-convert [argument]
+flavor-convert <command> [arguments]
 	
 Available Command:
-	help|-h|--help         Show this help message
+	-o                To provide old flavor part json file
+	-h|--help         Show this help message
+	-version          Print the current version
 `
 
 //To map the conditions in the flavor template with old flavor part
@@ -33,20 +37,6 @@ var flavorTemplateConditions = map[string]string{"//host_info/tboot_installed//*
 	"//host_info/tpm_version//*[text()='2.0']":                      "//meta/description/tpm_version//*[text()='2.0']"}
 
 var flavorTemplatePath = "/opt/hvs-flavortemplates"
-
-//getOldFlavorPartFilePath method is used to get the data from argement
-func getOldFlavorPartFilePath() (string, error) {
-
-	// return error if there are no correct number of arguments
-	if len(os.Args) < 2 {
-		fmt.Println(helpStr)
-		return "", fmt.Errorf("Old flavor part json file path is required")
-	}
-
-	fileLocation := os.Args[1]
-
-	return fileLocation, nil
-}
 
 //getFlavorTemplates method is used to get the flavor templates based on old flavor part file
 func getFlavorTemplates(body []byte) ([]FlavorTemplate, error) {
@@ -141,27 +131,36 @@ func checkIfValidFile(filename string) (bool, error) {
 //main method implements migration of old format of flavor part to new format
 func main() {
 
-	// Showing useful information when the user enters the --help option
+	oldFlavorPartFilePath := flag.String("o", "", "old flavor part json file")
+	versionFlag := flag.Bool("version", false, "Print the current version and exit")
+
+	// Showing useful information when the user enters the -h|--help option
 	flag.Usage = func() {
 		fmt.Println(helpStr)
 	}
 	flag.Parse()
 
-	// Getting the file data that was entered by the user
-	oldFlavorPartFilePath, err := getOldFlavorPartFilePath()
-	if err != nil {
-		fmt.Println("Error in getting the old flavor part file path - ", err)
+	// Show the current version when the user enters the -version option
+	if *versionFlag {
+		fmt.Println("Current build version: ", BuildVersion)
+		os.Exit(1)
+	}
+
+	// Checks for the file data that was entered by the user
+	if *oldFlavorPartFilePath == "" {
+		fmt.Printf(helpStr)
+		fmt.Println("Error: Old flavor part json file path is missing")
 		os.Exit(1)
 	}
 
 	// Validating the old flavor part file path entered
-	if valid, err := checkIfValidFile(oldFlavorPartFilePath); err != nil && !valid {
+	if valid, err := checkIfValidFile(*oldFlavorPartFilePath); err != nil && !valid {
 		fmt.Println("Error in validating the input file path - ", err)
 		os.Exit(1)
 	}
 
 	//reading the data from oldFlavorPartFilePath
-	body, err := ioutil.ReadFile(oldFlavorPartFilePath)
+	body, err := ioutil.ReadFile(*oldFlavorPartFilePath)
 	if err != nil {
 		fmt.Println("Error in reading the old flavor part file data")
 		os.Exit(1)
