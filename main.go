@@ -84,6 +84,15 @@ var eventIDList = map[string]string{
 	"asset-tag":                        "0x501",
 }
 
+const (
+	intelVendor  = "INTEL"
+	vmwareVendor = "VMWARE"
+
+	platformFlavor   = "PLATFORM"
+	osFlavor         = "OS"
+	hostUniqueFlavor = "HOST_UNIQUE"
+)
+
 var BuildVersion string
 
 const helpStr = `Usage:
@@ -265,6 +274,12 @@ func main() {
 			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.SuefiEnabled = true
 		}
 
+		if flavor.Flavor.Meta.Vendor == intelVendor {
+			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.Vendor = "Linux"
+		} else if flavor.Flavor.Meta.Vendor == vmwareVendor {
+			oldFlavorPart.SignedFlavor[flavorIndex].Flavor.Meta.Description.Vendor = "VMware"
+		}
+
 		//Updating hardware section
 		if flavor.Flavor.Hardware != nil {
 			//TXT
@@ -326,19 +341,19 @@ func main() {
 
 			if flavorname == flavor.Flavor.Meta.Description.FlavorPart {
 
-				if flavorname == "PLATFORM" && template.FlavorParts.Platform != nil {
+				if flavorname == platformFlavor && template.FlavorParts.Platform != nil {
 					for _, rules := range template.FlavorParts.Platform.PcrRules {
 						pcrsmap[rules.Pcr.Index] = rules.Pcr.Bank
 					}
 					rules = template.FlavorParts.Platform.PcrRules
 
-				} else if flavorname == "OS" && template.FlavorParts.OS != nil {
+				} else if flavorname == osFlavor && template.FlavorParts.OS != nil {
 					for _, rules := range template.FlavorParts.OS.PcrRules {
 						pcrsmap[rules.Pcr.Index] = rules.Pcr.Bank
 					}
 					rules = template.FlavorParts.OS.PcrRules
 
-				} else if flavorname == "HOST_UNIQUE" && template.FlavorParts.HostUnique != nil {
+				} else if flavorname == hostUniqueFlavor && template.FlavorParts.HostUnique != nil {
 					for _, rules := range template.FlavorParts.HostUnique.PcrRules {
 						pcrsmap[rules.Pcr.Index] = rules.Pcr.Bank
 					}

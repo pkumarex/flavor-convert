@@ -58,6 +58,7 @@
 						"index": 17,
 						"bank": "SHA256"
 					},
+					"pcr_matches": true,
 					"eventlog_includes": [
 						"vmlinuz"
 					]
@@ -77,6 +78,7 @@
 						"index": 17,
 						"bank": "SHA256"
 					},
+					"pcr_matches": true,
 					"eventlog_includes": [
 						"LCP_CONTROL_HASH",
 						"initrd"
@@ -87,6 +89,7 @@
 						"index": 18,
 						"bank": "SHA256"
 					},
+					"pcr_matches": true,
 					"eventlog_includes": [
 						"LCP_CONTROL_HASH"
 					]

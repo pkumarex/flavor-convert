@@ -107,6 +107,7 @@ type Description struct {
 	SuefiEnabled      bool        `json:"suefi_enabled,string,omitempty"`
 	DigestAlgorithm   string      `json:"digest_algorithm,omitempty"`
 	FlavorTemplateIds []uuid.UUID `json:"flavor_template_ids,omitempty"`
+	Vendor            string      `json:"vendor,omitempty"`
 }
 
 type EventLog struct {
