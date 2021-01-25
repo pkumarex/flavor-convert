@@ -20,10 +20,10 @@ type EventlogEquals struct {
 }
 
 type NewEventLog struct {
-	Measurement string   `json:"measurement"`
-	Tags        []string `json:"tags,omitempty"`
 	TypeID      string   `json:"type_id,omiempty"`
 	TypeName    string   `json:"type_name,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
+	Measurement string   `json:"measurement"`
 }
 
 type PcrIndex int

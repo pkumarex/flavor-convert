@@ -117,11 +117,14 @@ type EventLog struct {
 }
 
 type Feature struct {
-	AES_NI *AES_NI `json:"AES_NI,omitempty"`
-	TXT    *TXT    `json:"TXT,omitempty"`
-	TPM    *TPM    `json:"TPM,omitempty"`
-	CBNT   *CBNT   `json:"CBNT,omitempty"`
-	SUEFI  *SUEFI  `json:"SUEFI,omitempty"`
+	AES_NI *AES_NI         `json:"AES_NI,omitempty"`
+	SUEFI  *SUEFI          `json:"SUEFI,omitempty"`
+	TXT    TXT             `json:"TXT"`
+	TPM    TPM             `json:"TPM"`
+	CBNT   CBNT            `json:"CBNT"`
+	UEFI   UEFI            `json:"UEFI"`
+	PFR    HardwareFeature `json:"PFR"`
+	BMC    HardwareFeature `json:"BMC"`
 }
 
 type AES_NI struct {
@@ -129,22 +132,41 @@ type AES_NI struct {
 }
 
 type TXT struct {
-	Enabled bool `json:"enabled"`
+	Enabled interface{} `json:"enabled"`
 }
 
 type TPM struct {
-	Enabled  bool     `json:"enabled"`
-	Version  string   `json:"version,omitempty"`
-	PcrBanks []string `json:"pcr_banks,omitempty"`
+	Enabled  interface{} `json:"enabled"`
+	Version  string      `json:"version,omitempty"`
+	PcrBanks []string    `json:"pcr_banks,omitempty"`
+	Meta     struct {
+		TPMVersion string   `json:"tpm_version"`
+		PCRBanks   []string `json:"pcr_banks"`
+	} `json:"meta"`
 }
 
 type CBNT struct {
-	Enabled bool   `json:"enabled,omitempty"`
-	Profile string `json:"profile,omitempty"`
+	Enabled interface{} `json:"enabled"`
+	Profile string      `json:"profile,omitempty"`
+	Meta    struct {
+		Profile string `json:"profile"`
+		MSR     string `json:"msr"`
+	} `json:"meta"`
+}
+
+type UEFI struct {
+	HardwareFeature
+	Meta struct {
+		SecureBootEnabled bool `json:"secure_boot_enabled"`
+	} `json:"meta"`
 }
 
 type SUEFI struct {
 	Enabled bool `json:"enabled,omitempty"`
+}
+
+type HardwareFeature struct {
+	Enabled bool `json:"enabled,string"`
 }
 
 type AssetTag struct {

@@ -1,4 +1,5 @@
 {
+    "id": "aa30e267-1925-4790-bc90-ef28c6d21516",
     "label": "linux-tpm20-suefi",
     "condition": [
 		"//host_info/vendor//*[text()='Linux']",

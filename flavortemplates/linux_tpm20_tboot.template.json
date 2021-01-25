@@ -1,4 +1,5 @@
 {
+	"id": "ab2a4f35-6d6e-4fd3-bcb8-1ae57576e3c7",
 	"label": "linux-tpm20-tboot",
 	"condition": [
 		"//host_info/vendor//*[text()='Linux']",

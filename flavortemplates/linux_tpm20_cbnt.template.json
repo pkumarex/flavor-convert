@@ -1,4 +1,5 @@
 {
+    "id": "f7e3ee4c-944b-4030-9d32-94d22773573d",
     "label": "linux-tpm20-cbnt",
     "condition": [
 		"//host_info/vendor//*[text()='Linux']",
